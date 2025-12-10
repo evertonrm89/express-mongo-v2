@@ -2,32 +2,38 @@ import autores from "../models/Autor.js";
 
 class AutorController {
 
-  static listarAutores = async(req, res) => {
+  static listarAutores = async(req, res, next) => {
     try {
       const autoresResultado = await autores.find();
 
       res.status(200).json(autoresResultado);
       
   } catch (error) {
-          res.status(500).json({ message: `Erro interno no servidor ${error.message}` });
+      next(error);
   }
   }
 
-  static listarAutorPorId = async (req, res) => {
+  static listarAutorPorId = async (req, res, next) => {
     
       try {
         const id = req.params.id;
   
         const autorResultado = await autores.findById(id);
+
+        if (autorResultado !== null) {
+          res.status(200).send(autorResultado);
+        } 
+        else {
+          res.status(404).send({message: "Autor não encontrado."});
+        }
   
-        res.status(200).send(autorResultado);
       } catch (error) {
-        res.status(400).send({message: `${error.message} - Id do Autor não localizado.`});
+        next(error);
       }
     }
   
   
-    static cadastrarAutor = async (req, res) => {
+    static cadastrarAutor = async (req, res, next) => {
       try {
         let autor = new autores(req.body);
   
@@ -35,12 +41,12 @@ class AutorController {
   
         res.status(201).send(autorResultado.toJSON());
       } catch (error) {
-        res.status(500).send({message: `${error.message} - falha ao cadastrar Autor.`});
+        next(error);
       }
     }
   
 
-    static atualizarAutor = async (req, res) => {
+    static atualizarAutor = async (req, res, next) => {
       try {
         const id = req.params.id;
   
@@ -48,11 +54,11 @@ class AutorController {
   
         res.status(200).send({message: "Autor atualizado com sucesso"});
       } catch (error) {
-        res.status(500).send({message: error.message});
+        next(error);
       }
     }
   
-    static excluirAutor = async (req, res) => {
+    static excluirAutor = async (req, res, next) => {
       try {
         const id = req.params.id;
   
@@ -60,7 +66,7 @@ class AutorController {
   
         res.status(200).send({message: "Autor removido com sucesso"});
       } catch (error) {
-        res.status(500).send({message: error.message});
+        next(error);
       }
     }
   
