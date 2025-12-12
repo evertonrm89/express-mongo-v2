@@ -50,10 +50,15 @@ class AutorController {
     static atualizarAutor = async (req, res, next) => {
       try {
         const id = req.params.id;
-  
-        await autores.findByIdAndUpdate(id, {$set: req.body});
-  
-        res.status(200).send({message: "Autor atualizado com sucesso"});
+        const autorResultado = await autores.findById(id);
+
+        if(autorResultado !== null){
+          await autores.findByIdAndUpdate(id, {$set: req.body});
+          res.status(200).send({message: "Autor atualizado com sucesso"});
+        } else {
+          next(new NaoEncontrado("Id do Autor não encontrado."));
+        }
+
       } catch (error) {
         next(error);
       }
