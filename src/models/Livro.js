@@ -10,6 +10,7 @@ const livroSchema = new mongoose.Schema(
       type: String, 
       required: [true, "A editora do livro é obrigatória"]},
     numeroPaginas: {type: Number},
+    preco: {type: Number},
     autor: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'autores', 

@@ -1,3 +1,4 @@
+import NaoEncontrado from "../erros/NaoEncontrado.js";
 import autores from "../models/Autor.js";
 
 class AutorController {
@@ -24,7 +25,7 @@ class AutorController {
           res.status(200).send(autorResultado);
         } 
         else {
-          res.status(404).send({message: "Autor não encontrado."});
+          next(new NaoEncontrado("Id do Autor não encontrado."));
         }
   
       } catch (error) {
@@ -35,11 +36,11 @@ class AutorController {
   
     static cadastrarAutor = async (req, res, next) => {
       try {
+        
         let autor = new autores(req.body);
-  
         const autorResultado = await autor.save();
-  
         res.status(201).send(autorResultado.toJSON());
+
       } catch (error) {
         next(error);
       }
