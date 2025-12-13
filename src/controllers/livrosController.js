@@ -49,12 +49,9 @@ class LivroController {
     try {
       const id = req.params.id;
 
-      const livroResultado = await livros.findById(id)
-        .populate("autor", "nome")
-        .exec();
+      const livroResultado = await livros.findByIdAndUpdate(id, { $set: req.body });
 
         if (livroResultado !== null) {
-          await livros.findByIdAndUpdate(id, { $set: req.body });
           res.status(200).send({ message: "Livro atualizado com sucesso" });
         } else {
           next(new NaoEncontrado("Id do Livro não encontrado."));
@@ -68,12 +65,9 @@ class LivroController {
   static excluirLivro = async (req, res, next) => {
     try {
       const id = req.params.id;
-      const livroResultado = await livros.findById(id)
-        .populate("autor", "nome")
-        .exec();
+      const livroResultado = await livros.findByIdAndDelete(id);
 
       if (livroResultado !== null) {
-        await livros.findByIdAndDelete(id);
         res.status(200).send({ message: "Livro removido com sucesso" });
       } else {
         next(new NaoEncontrado("Id do Livro não encontrado."));
