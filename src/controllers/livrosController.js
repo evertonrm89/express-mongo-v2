@@ -1,5 +1,5 @@
 import NaoEncontrado from "../erros/NaoEncontrado.js";
-import {livros} from "../models/index.js";
+import { livros } from "../models/index.js";
 
 class LivroController {
 
@@ -51,11 +51,11 @@ class LivroController {
 
       const livroResultado = await livros.findByIdAndUpdate(id, { $set: req.body });
 
-        if (livroResultado !== null) {
-          res.status(200).send({ message: "Livro atualizado com sucesso" });
-        } else {
-          next(new NaoEncontrado("Id do Livro não encontrado."));
-        }
+      if (livroResultado !== null) {
+        res.status(200).send({ message: "Livro atualizado com sucesso" });
+      } else {
+        next(new NaoEncontrado("Id do Livro não encontrado."));
+      }
 
     } catch (error) {
       next(error);
@@ -77,13 +77,12 @@ class LivroController {
     }
   }
 
-  static listarLivroPorEditora = async (req, res, next) => {
+  static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const editora = req.query.editora;
+      const busca = processoBusca(req.query);
+      const livrosResultado = await livros.find(busca);
 
-      const livrosResultado = await livros.find({ "editora": editora });
-      
-       if (livrosResultado !== null) {
+      if (livrosResultado !== null) {
         res.status(200).send(livrosResultado);
       } else {
         next(new NaoEncontrado("Editora não encontrada."));
@@ -95,6 +94,29 @@ class LivroController {
 
 
 
+}
+
+function processoBusca(parametros) {
+
+  const { editora, titulo, minPaginas, maxPaginas } = parametros;
+  //UTILIZANDO REGEX PARA BUSCA PARCIAL DE DOIS MODOS
+  // Cria uma expressão regular para busca case-insensitive do título
+  const regex = new RegExp(titulo, 'i');
+
+  const busca = {};
+  if (titulo) busca.titulo = regex;
+  // Adiciona os filtros à busca se estiverem presentes com valores
+  if (editora) busca.editora = { $regex: editora, $options: 'i' };
+
+  if (minPaginas || maxPaginas) busca.numeroPaginas = {};
+  // gte: maior ou igual, lte: menor ou igual
+  if (minPaginas) busca.numeroPaginas.$gte = minPaginas;
+  if (maxPaginas) busca.numeroPaginas.$lte = maxPaginas;
+  /*if (minPaginas && maxPaginas) {
+    busca.numeroPaginas = { $lte: maxPaginas, $gte: minPaginas };
+  }*/
+
+  return busca;
 }
 
 export default LivroController
